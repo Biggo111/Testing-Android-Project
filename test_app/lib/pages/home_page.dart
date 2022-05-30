@@ -35,6 +35,7 @@ class _MyHomePageState extends State<MyHomePage> {
         onPressed: () {
           setState(() {
             myText = _controller.text;
+            _controller.clear();
           });
         },
         child: const Icon(Icons.send),
