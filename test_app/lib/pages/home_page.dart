@@ -3,19 +3,18 @@ import 'package:flutter/material.dart';
 import '../card.dart';
 import '../drawer.dart';
 
-
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
+  const MyHomePage({Key? key, required this.name}) : super(key: key);
 
-  final String title;
+  final String title = "Awesome App";
+  final String name;
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
-  var myText = 'Change My Name';
+  var myText = 'Welcome, ';
 
   final TextEditingController _controller = TextEditingController();
 
@@ -43,3 +42,6 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
+
+
+// git remote add origin 
