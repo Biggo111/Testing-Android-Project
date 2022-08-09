@@ -10,6 +10,11 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  TextField textField = const TextField(
+    decoration: InputDecoration(
+      labelText: 'Enter your name',
+    ),
+  );
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -57,7 +62,7 @@ class _LoginPageState extends State<LoginPage> {
               padding: const EdgeInsets.all(8.0),
               child: ElevatedButton(
                 onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const MyHomePage(title: 'Awesome App')));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const MyHomePage(name: 'John')));
                 },
                 child: const Text('Login'),
               ),
