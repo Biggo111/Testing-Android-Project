@@ -11,6 +11,7 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   var myController = TextEditingController();
+  var passwordController = TextEditingController();
   TextField _nameField() {
     return TextField(
       controller: myController,
@@ -21,18 +22,37 @@ class _LoginPageState extends State<LoginPage> {
       ),
     );
   }
+
+  TextField _passField() {
+    return TextField(
+      controller: passwordController,
+      decoration: const InputDecoration(
+        border: OutlineInputBorder(),
+        hintText: 'Enter your password',
+        labelText: 'Password',
+      ),
+    );
+  }
+
   void _login() {
     String? name = myController.text;
+    String? password = passwordController.text;
+    if (password != '1234') {
+      // TODO: show wrong password dialog
+      return;
+    }
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => MyHomePage(name: name)),
     );
   }
+
   @override
   void dispose() {
     myController.dispose();
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -57,15 +77,9 @@ class _LoginPageState extends State<LoginPage> {
             const SizedBox(
               height: 5,
             ),
-            const Padding(
-              padding: EdgeInsets.all(8.0),
-              child: TextField(
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  hintText: 'Enter your password',
-                  labelText: 'Password',
-                ),
-              ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: _passField(),
             ),
             const SizedBox(
               height: 5,
