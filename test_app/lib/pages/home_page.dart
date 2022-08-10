@@ -10,11 +10,13 @@ class MyHomePage extends StatefulWidget {
   final String name;
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  // ignore: no_logic_in_create_state
+  State<MyHomePage> createState() =>  _MyHomePageState(myText: "Welcome, $name");
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  var myText = 'Welcome, ';
+  _MyHomePageState({required this.myText});
+  String myText;
 
   final TextEditingController _controller = TextEditingController();
 
@@ -33,7 +35,7 @@ class _MyHomePageState extends State<MyHomePage> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           setState(() {
-            myText = _controller.text;
+            myText = "Welcome, ${_controller.text}";
             _controller.clear();
           });
         },

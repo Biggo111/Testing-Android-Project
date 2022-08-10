@@ -10,11 +10,29 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  TextField textField = const TextField(
-    decoration: InputDecoration(
-      labelText: 'Enter your name',
-    ),
-  );
+  var myController = TextEditingController();
+  TextField _nameField() {
+    return TextField(
+      controller: myController,
+      decoration: const InputDecoration(
+        border: OutlineInputBorder(),
+        hintText: 'Enter your name',
+        labelText: 'Name',
+      ),
+    );
+  }
+  void _login() {
+    String? name = myController.text;
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => MyHomePage(name: name)),
+    );
+  }
+  @override
+  void dispose() {
+    myController.dispose();
+    super.dispose();
+  }
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -32,15 +50,9 @@ class _LoginPageState extends State<LoginPage> {
             const SizedBox(
               height: 5,
             ),
-            const Padding(
-              padding: EdgeInsets.all(8.0),
-              child: TextField(
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  hintText: 'Enter your name',
-                  labelText: 'Name',
-                ),
-              ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: _nameField(),
             ),
             const SizedBox(
               height: 5,
@@ -61,9 +73,7 @@ class _LoginPageState extends State<LoginPage> {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: ElevatedButton(
-                onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const MyHomePage(name: 'John')));
-                },
+                onPressed: _login,
                 child: const Text('Login'),
               ),
             ),
