@@ -1,107 +1,115 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
-void main() {
+// import 'firebase_options.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  // await Firebase.initializeApp(
+  // options: DefaultFirebaseOptions.currentPlatform,
+  // );
+  await Firebase.initializeApp();
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
-  // This widget is the root of your application.
+  static Future<User?> signInWithGoogle() async {
+    FirebaseAuth auth = FirebaseAuth.instance;
+    try {
+      UserCredential credential;
+      if (kIsWeb) {
+        var provider = GoogleAuthProvider();
+        credential = await auth.signInWithPopup(provider);
+      } else {
+        final GoogleSignInAccount googleUser = (await GoogleSignIn().signIn())!;
+        final GoogleSignInAuthentication googleAuth =
+            await googleUser.authentication;
+        final authCredential = GoogleAuthProvider.credential(
+          accessToken: googleAuth.accessToken,
+          idToken: googleAuth.idToken,
+        );
+        credential = await auth.signInWithCredential(authCredential);
+      }
+      final user = credential.user;
+      return user;
+    } catch (e) {
+      // ignore: avoid_print
+      print(e);
+      return null;
+    }
+  }
+
+  static Future<void> signOut({required BuildContext context}) async {
+    final GoogleSignIn googleSignIn = GoogleSignIn();
+    try {
+      if (!kIsWeb) {
+        await googleSignIn.signOut();
+      }
+      await FirebaseAuth.instance.signOut();
+    } catch (e) {
+      // ignore: avoid_print
+      print(e);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        primarySwatch: Colors.deepPurple,
+        primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Wakanda Forever'),
-    );
-  }
-}
-
-class MyHomePage extends StatelessWidget {
-  MyHomePage({Key? key, required this.title}) : super(key: key);
-
-  final String title;
-  final TextField nameField = TextField(
-    decoration: const InputDecoration(
-      border: OutlineInputBorder(),
-      labelText: 'Name',
-      hintText: 'Enter your name',
-    ),
-    controller: TextEditingController(),
-    autofocus: true,
-  );
-  final TextField passField = TextField(
-    decoration: const InputDecoration(
-      border: OutlineInputBorder(),
-      labelText: 'Password',
-      hintText: 'Enter your password',
-    ),
-    controller: TextEditingController(),
-  );
-
-  void _onLogin(BuildContext context) {
-    // ignore: avoid_print
-    print('Login');
-    // get the text from the text field
-    final String name = nameField.controller!.text;
-    final String pass = passField.controller!.text;
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => LoginPage(username: name, password: pass),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            nameField,
-            const Padding(padding: EdgeInsets.all(8.0)),
-            passField,
-            const Padding(padding: EdgeInsets.all(8.0)),
-            ElevatedButton(
-              // ignore: avoid_print
-              onPressed: () => _onLogin(context),
-              child: const Text('Login'),
-            ),
-          ],
-        ),
+      home: Center(
+        child: ElevatedButton(
+            onPressed: (() {
+              // get user from signInWithGoogle
+              signInWithGoogle().then((user) {
+                if (user != null) {
+                  // signInWithGoogle success
+                  String? name = user.displayName;
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => WelcomePage(username: name),
+                ),
+              );
+                } else {
+                  // signInWithGoogle failed
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const Card(
+                    child: Text('Sign in failed'),
+                  )));
+                }
+              });
+              
+            }),
+            child: const Text('Sign in with Google')),
       ),
     );
   }
 }
 
-class LoginPage extends StatelessWidget {
-  const LoginPage({Key? key, required this.username, required this.password})
-      : super(key: key);
-  final String username;
-  final String password;
+class WelcomePage extends StatelessWidget {
+  const WelcomePage({Key? key, required this.username}) : super(key: key);
+  final String? username;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Login'),
+        title: const Text('Welcome'),
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text('Welcome $username'),
-            const Padding(padding: EdgeInsets.all(8.0)),
-            Text('Your password is $password'),
-          ],
-        ),
+        child: Text('Welcome to Flutter, $username!'),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          MyApp.signOut(context: context);
+        },
+        child: const Icon(Icons.exit_to_app),
       ),
     );
   }
