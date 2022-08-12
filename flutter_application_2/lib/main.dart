@@ -5,7 +5,7 @@ import 'package:flutter_application_2/pages/signup_page.dart';
 void main() => runApp(
   const MaterialApp(
     title: 'Flutter Application 2',
-    home: SignupPage(),
+    home: LoginPage(),
     debugShowCheckedModeBanner: false,
   ),
 );
