@@ -31,18 +31,21 @@ class SignupPage extends StatelessWidget {
                     labelText: 'Username',
                     hintText: 'Enter your username'),
               ),
-              const SizedBox(height: 28),
+              // const SizedBox(height: 28),
               // Email text field
-              TextField(
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15)),
-                  labelText: 'Email',
-                  hintText: 'Enter your email',
+              Padding(
+                padding: const EdgeInsets.fromLTRB(52, 28, 0, 0),
+                child: TextField(
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(15)),
+                    labelText: 'Email',
+                    hintText: 'Enter your email',
+                  ),
                 ),
               ),
               // Password text field
-              const SizedBox(height: 28),
+              // const SizedBox(height: 28),
               TextField(
                 decoration: InputDecoration(
                   border: OutlineInputBorder(
@@ -63,12 +66,22 @@ class SignupPage extends StatelessWidget {
               ),
               const SizedBox(height: 53),
               Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                ElevatedButton(
-                    onPressed: _onPressed, child: const Text('Register')),
+                SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.3,
+                  child: ElevatedButton(
+                      onPressed: _onPressed, child: const Text('Register')),
+                ),
                 const Padding(padding: EdgeInsets.all(10)),
-                ElevatedButton(
-                    onPressed: _backToLogin,
-                    child: const Text('Back to login')),
+                SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.3,
+                  child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5))
+                              ),
+                      onPressed: _backToLogin,
+                      child: const Text('Back')),
+                ),
               ]),
               // const SizedBox(height: 20),
             ],
