@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 // declare a list of unique strings
 List<String> kStrings = <String>[];
 int attempts = 3;
+int score = 0;
 void main() {
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
