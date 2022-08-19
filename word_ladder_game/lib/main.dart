@@ -1,6 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:word_ladder_game/login.dart';
 
 // declare a list of unique strings
 List<String> kStrings = <String>[];
@@ -18,7 +19,7 @@ void main() {
       appBar: AppBar(
         title: const Text('Word Ladder'),
       ),
-      body: const Game(),
+      body: const Login(),
     ),
   ));
 }
@@ -75,7 +76,7 @@ class _GameState extends State<Game> {
       // set focus to the second text field
       context.findRenderObject() as RenderObject;
       _focusNode.requestFocus();
-      String word = controller.text;
+      String word = controller.text.trim().split(RegExp(r'[^\w]+')).first;
       if (word.isEmpty) {
         return;
       }
@@ -139,8 +140,8 @@ class _GameState extends State<Game> {
               child: TextField(
                 controller: _controller2,
                 keyboardType: TextInputType.multiline,
-                maxLines: 10,
-                minLines: 4,
+                maxLines: null,
+                minLines: 5,
                 scrollPhysics: const BouncingScrollPhysics(),
                 decoration: InputDecoration(
                   border: OutlineInputBorder(
@@ -202,6 +203,22 @@ class _GameState extends State<Game> {
               decoration: decoration,
               onSubmitted: ((value) => _submit()),
               textAlign: TextAlign.center,
+              onChanged: (value) {
+                setState(() {
+                  // check if value contains only letters
+                  if (value.isNotEmpty && value.characters.last.contains(RegExp(r'[^a-zA-Z]+'))) {
+                    // if it does, skip this action
+                    controller.text = value.substring(0, value.length - 1);
+                    //  set cursor to the end of the text
+                    controller.selection = TextSelection.fromPosition(
+                      TextPosition(
+                        affinity: TextAffinity.downstream,
+                        offset: controller.text.length,
+                      ),
+                    );
+                  }
+                });
+              },
               style: const TextStyle(
                 fontSize: 20,
               ),
