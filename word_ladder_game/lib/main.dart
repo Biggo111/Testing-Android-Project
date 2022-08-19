@@ -1,4 +1,6 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 // declare a list of unique strings
 List<String> kStrings = <String>[];
@@ -16,9 +18,7 @@ void main() {
       appBar: AppBar(
         title: const Text('Word Ladder'),
       ),
-      body: const Center(
-        child: Game(),
-      ),
+      body: const Game(),
     ),
   ));
 }
@@ -46,40 +46,46 @@ class _GameState extends State<Game> {
   );
   void _submit() {
     setState(() {
+      // set focus to the second text field
+      context.findRenderObject() as RenderObject;
+      _focusNode.requestFocus();
       String word = controller.text;
       if (word.isEmpty) {
         return;
       }
       if (kStrings.contains(word)) {
         attempts--;
-        if (attempts == 0) {
-          // show dialog box "Game Over"
-          controller.clear();
-          _controller2.clear();
-          kStrings.clear();
-          decoration = InputDecoration(
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-            hintText: 'Enter a word',
-          );
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: const Text('Game Over'),
-                content: const Text('You have run out of attempts'),
-                actions: <Widget>[
-                  TextButton(
-                    child: const Text('OK'),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                ],
-              );
-            },
-          );
-          return;
-        }
+      if (attempts == 0) {
+        // show dialog box "Game Over"
+        controller.clear();
+        _controller2.clear();
+        kStrings.clear();
+        decoration = InputDecoration(
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+          hintText: 'Enter a word',
+        );
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Game Over'),
+              content: Text('You score is $score'),
+              actions: <Widget>[
+                TextButton(
+                  child: const Text('OK'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            );
+          },
+        );
+        attempts = 3;
+        score = 0;
+        lastChar = null;
+        return;
+      }
         decoration = InputDecoration(
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
           hintText: 'Enter a word starts with $lastChar',
@@ -95,11 +101,13 @@ class _GameState extends State<Game> {
         lastChar = null;
         _controller2.clear();
         kStrings.clear();
+        score = 0;
         decoration = InputDecoration(
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-          hintText: 'Enter a word',
-          errorText: 'Words must start with the same letter',
+          hintText: 'Enter a word starts with $firstChar',
+          errorText: 'Wrong word!',
         );
+        attempts--;
         return;
       }
       lastChar = word.characters.last.toUpperCase();
@@ -114,87 +122,90 @@ class _GameState extends State<Game> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    return Center(
-      child: Column(
-        children: [
-          const Padding(padding: EdgeInsets.all(8)),
-          Container(
-            padding: const EdgeInsets.all(8),
-            child: TextField(
-              textDirection: TextDirection.ltr,
-              textAlign: TextAlign.left,
-              textAlignVertical: TextAlignVertical.top,
-              style: TextStyle(
-                height: size.height * 0.01,
-              ),
-              controller: _controller2,
-              enabled: false,
-              scrollController: ScrollController(
-                initialScrollOffset: 0,
-              ),
-              decoration: InputDecoration(
-                labelText: 'Your guessed words',
-                border:
-                    OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+    return Container(
+      padding: const EdgeInsets.all(8.0),
+      child: Center(
+        child: Column(
+          // mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const Padding(padding: EdgeInsets.all(5)),
+            SingleChildScrollView(
+              reverse: true,
+              dragStartBehavior: DragStartBehavior.down,
+              scrollDirection: Axis.vertical,
+              child: TextField(
+                controller: _controller2,
+                keyboardType: TextInputType.multiline,
+                maxLines: 10,
+                minLines: 4,
+                scrollPhysics: const BouncingScrollPhysics(),
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10)),
+                  labelText: 'Your words',
+                ),
+                readOnly: true,
+                enableInteractiveSelection: false,
+                onTap: (() => {
+                  // copy text to clipboard
+                  Clipboard.setData(ClipboardData(text: _controller2.text)),
+                  // show snackbar
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Copied to clipboard'),
+                      duration: Duration(seconds: 1),
+                    ),
+                  ),
+                }),
+                // expands: true,
+                scrollController: ScrollController(
+                  initialScrollOffset: 0.0,
+                  keepScrollOffset: true,
+                ),
+                style: const TextStyle(
+                  fontSize: 22,
+                ),
               ),
             ),
-          ),
-          const Padding(padding: EdgeInsets.all(10)),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Padding(padding: EdgeInsets.all(8)),
-              Text(
-                'Attempts: $attempts',
-                textDirection: TextDirection.ltr,
-                style: TextStyle(
-                  fontSize: size.width * 0.1,
-                  fontWeight: FontWeight.bold,
+            const Padding(padding: EdgeInsets.all(5)),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const SizedBox(
+                  width: 1,
                 ),
-              ),
-              const Padding(padding: EdgeInsets.all(10)),
-              Text(
-                'Score: $score',
-                textDirection: TextDirection.rtl,
-                style: TextStyle(
-                  fontSize: size.width * 0.1,
-                  fontWeight: FontWeight.bold,
+                Text(
+                  'Score: $score',
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-              const Padding(padding: EdgeInsets.all(10)),
-            ],
-          ),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const Padding(padding: EdgeInsets.all(8)),
-              Expanded(
-                child: TextField(
-                  controller: controller,
-                  onSubmitted: (value) => _submit(),
-                  autofocus: true,
-                  focusNode: _focusNode,
-                  // focus back to the text field after submission
-                  onEditingComplete: () =>
-                      FocusScope.of(context).requestFocus(_focusNode),
-                  decoration: decoration,
+                const SizedBox(width: 150),
+                Text(
+                  'Attempts: $attempts',
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
+                const SizedBox(width: 1),
+              ],
+            ),
+            const Padding(padding: EdgeInsets.all(5)),
+            TextField(
+              controller: controller,
+              focusNode: _focusNode,
+              decoration: decoration,
+              onSubmitted: ((value) => _submit()),
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 20,
               ),
-              const Padding(padding: EdgeInsets.all(5)),
-              Container(
-                  alignment: Alignment.center,
-                  transformAlignment: Alignment.center,
-                  child: ElevatedButton(
-                    onPressed: _submit,
-                    style: ElevatedButton.styleFrom(
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10))),
-                    child: const Text('Go'),
-                  )),
-              const Padding(padding: EdgeInsets.all(8)),
-            ],
-          ),
-        ],
+            ),
+          ],
+        ),
       ),
     );
   }
