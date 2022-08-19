@@ -44,6 +44,32 @@ class _GameState extends State<Game> {
     border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
     hintText: 'Enter a word',
   );
+  void _gameOver() {
+    controller.clear();
+    _controller2.clear();
+    kStrings.clear();
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Game Over'),
+          content: Text('You score is $score'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+    attempts = 3;
+    score = 0;
+    lastChar = null;
+  }
+
   void _submit() {
     setState(() {
       // set focus to the second text field
@@ -55,37 +81,10 @@ class _GameState extends State<Game> {
       }
       if (kStrings.contains(word)) {
         attempts--;
-      if (attempts == 0) {
-        // show dialog box "Game Over"
-        controller.clear();
-        _controller2.clear();
-        kStrings.clear();
-        decoration = InputDecoration(
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-          hintText: 'Enter a word',
-        );
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: const Text('Game Over'),
-              content: Text('You score is $score'),
-              actions: <Widget>[
-                TextButton(
-                  child: const Text('OK'),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ],
-            );
-          },
-        );
-        attempts = 3;
-        score = 0;
-        lastChar = null;
-        return;
-      }
+        if (attempts == 0) {
+          _gameOver();
+          return;
+        }
         decoration = InputDecoration(
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
           hintText: 'Enter a word starts with $lastChar',
@@ -99,6 +98,11 @@ class _GameState extends State<Game> {
       String firstChar = word.substring(0, 1).toUpperCase();
       if (lastChar != null && lastChar != firstChar) {
         lastChar = null;
+        attempts--;
+        if (attempts == 0) {
+          _gameOver();
+          return;
+        }
         _controller2.clear();
         kStrings.clear();
         score = 0;
@@ -107,7 +111,6 @@ class _GameState extends State<Game> {
           hintText: 'Enter a word starts with $firstChar',
           errorText: 'Wrong word!',
         );
-        attempts--;
         return;
       }
       lastChar = word.characters.last.toUpperCase();
@@ -121,7 +124,6 @@ class _GameState extends State<Game> {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
     return Container(
       padding: const EdgeInsets.all(8.0),
       child: Center(
@@ -148,16 +150,16 @@ class _GameState extends State<Game> {
                 readOnly: true,
                 enableInteractiveSelection: false,
                 onTap: (() => {
-                  // copy text to clipboard
-                  Clipboard.setData(ClipboardData(text: _controller2.text)),
-                  // show snackbar
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Copied to clipboard'),
-                      duration: Duration(seconds: 1),
-                    ),
-                  ),
-                }),
+                      // copy text to clipboard
+                      Clipboard.setData(ClipboardData(text: _controller2.text)),
+                      // show snackbar
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Copied to clipboard'),
+                          duration: Duration(seconds: 1),
+                        ),
+                      ),
+                    }),
                 // expands: true,
                 scrollController: ScrollController(
                   initialScrollOffset: 0.0,
