@@ -72,20 +72,22 @@ class MyApp extends StatelessWidget {
                 if (user != null) {
                   // signInWithGoogle success
                   String? name = user.displayName;
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => WelcomePage(username: name),
-                ),
-              );
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => WelcomePage(username: name),
+                    ),
+                  );
                 } else {
                   // signInWithGoogle failed
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const Card(
-                    child: Text('Sign in failed'),
-                  )));
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const Card(
+                                child: Text('Sign in failed'),
+                              )));
                 }
               });
-              
             }),
             child: const Text('Sign in with Google')),
       ),
