@@ -133,41 +133,49 @@ class _GameState extends State<Game> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const Padding(padding: EdgeInsets.all(5)),
-            SingleChildScrollView(
-              reverse: true,
-              dragStartBehavior: DragStartBehavior.down,
-              scrollDirection: Axis.vertical,
-              child: TextField(
-                controller: _controller2,
-                keyboardType: TextInputType.multiline,
-                maxLines: null,
-                minLines: 5,
-                scrollPhysics: const BouncingScrollPhysics(),
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10)),
-                  labelText: 'Your words',
-                ),
-                readOnly: true,
-                enableInteractiveSelection: false,
-                onTap: (() => {
-                      // copy text to clipboard
-                      Clipboard.setData(ClipboardData(text: _controller2.text)),
-                      // show snackbar
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Copied to clipboard'),
-                          duration: Duration(seconds: 1),
+            ConstrainedBox(
+              constraints: BoxConstraints(
+                minWidth: MediaQuery.of(context).size.width,
+                maxWidth: MediaQuery.of(context).size.width,
+                minHeight: MediaQuery.of(context).size.height * 0.3,
+                maxHeight: MediaQuery.of(context).size.height * 0.3,
+              ),
+              child: SingleChildScrollView(
+                reverse: true,
+                scrollDirection: Axis.vertical,
+                child: TextField(
+                  controller: _controller2,
+                  keyboardType: TextInputType.multiline,
+                  maxLines: null,
+                  minLines: 5,
+                  scrollPhysics: const BouncingScrollPhysics(),
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10)),
+                    labelText: 'Your words',
+                  ),
+                  readOnly: true,
+                  enableInteractiveSelection: false,
+                  onTap: (() => {
+                        // copy text to clipboard
+                        Clipboard.setData(
+                            ClipboardData(text: _controller2.text)),
+                        // show snackbar
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Copied to clipboard'),
+                            duration: Duration(seconds: 1),
+                          ),
                         ),
-                      ),
-                    }),
-                // expands: true,
-                scrollController: ScrollController(
-                  initialScrollOffset: 0.0,
-                  keepScrollOffset: true,
-                ),
-                style: const TextStyle(
-                  fontSize: 22,
+                      }),
+                  // expands: true,
+                  scrollController: ScrollController(
+                    initialScrollOffset: 0.0,
+                    keepScrollOffset: true,
+                  ),
+                  style: const TextStyle(
+                    fontSize: 22,
+                  ),
                 ),
               ),
             ),
@@ -206,7 +214,8 @@ class _GameState extends State<Game> {
               onChanged: (value) {
                 setState(() {
                   // check if value contains only letters
-                  if (value.isNotEmpty && value.characters.last.contains(RegExp(r'[^a-zA-Z]+'))) {
+                  if (value.isNotEmpty &&
+                      value.characters.last.contains(RegExp(r'[^a-zA-Z]+'))) {
                     // if it does, skip this action
                     controller.text = value.substring(0, value.length - 1);
                     //  set cursor to the end of the text
